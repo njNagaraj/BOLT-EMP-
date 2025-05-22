@@ -52,6 +52,13 @@ app.get('/api/announcements', authenticateUser, (req, res) => {
   res.json(activeAnnouncements);
 });
 
+app.get('/api/announcements/all', authenticateUser, (req, res) => {
+  if (req.user.role !== 'admin') {
+    return res.status(403).json({ msg: 'Not authorized' });
+  }
+  res.json(announcements);
+});
+
 app.post('/api/announcements', authenticateUser, (req, res) => {
   if (req.user.role !== 'admin') {
     return res.status(403).json({ msg: 'Not authorized to create announcements' });
