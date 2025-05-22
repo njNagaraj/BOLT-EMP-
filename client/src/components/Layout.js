@@ -12,6 +12,7 @@ import {
   ClipboardDocumentListIcon,
   UsersIcon,
   UserIcon,
+  BellIcon
 } from '@heroicons/react/24/outline';
 
 function classNames(...classes) {
@@ -51,6 +52,7 @@ export default function Layout() {
         { name: 'Leaves', href: '/admin/leaves', icon: CalendarIcon },
         { name: 'Tasks', href: '/admin/tasks', icon: ClipboardDocumentListIcon },
         { name: 'Employees', href: '/admin/employees', icon: UsersIcon },
+        { name: 'Announcements', href: '/admin/announcements', icon: BellIcon },
       ]
     : [
         { name: 'Dashboard', href: '/employee', icon: HomeIcon },
@@ -68,7 +70,7 @@ export default function Layout() {
     <div className="min-h-screen bg-gray-50">
       {/* Announcements Banner */}
       {announcements.length > 0 && (
-        <div className="bg-primary-500">
+        <div className="bg-primary-500 sticky top-0 z-50">
           <div className="max-w-7xl mx-auto py-3 px-3 sm:px-6 lg:px-8">
             <div className="flex flex-col space-y-2">
               {announcements.map((announcement, index) => (
@@ -163,7 +165,7 @@ export default function Layout() {
       </Transition.Root>
 
       {/* Static sidebar for desktop */}
-      <div className="hidden lg:fixed lg:inset-y-0 lg:z-50 lg:flex lg:w-72 lg:flex-col">
+      <div className="hidden lg:fixed lg:inset-y-0 lg:z-40 lg:flex lg:w-72 lg:flex-col">
         <div className="flex grow flex-col gap-y-5 overflow-y-auto border-r border-gray-200 bg-white px-6">
           <div className="flex h-16 shrink-0 items-center">
             <h1 className="text-2xl font-bold text-primary-600">IT Dashboard</h1>

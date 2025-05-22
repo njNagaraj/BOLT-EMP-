@@ -11,6 +11,7 @@ import Attendance from './pages/admin/Attendance';
 import Leaves from './pages/admin/Leaves';
 import Tasks from './pages/admin/Tasks';
 import Employees from './pages/admin/Employees';
+import Announcements from './pages/admin/Announcements';
 import EmployeeAttendance from './pages/employee/Attendance';
 import EmployeeLeaves from './pages/employee/Leaves';
 import EmployeeTasks from './pages/employee/Tasks';
@@ -54,6 +55,7 @@ function App() {
         <Route path="leaves" element={<Leaves />} />
         <Route path="tasks" element={<Tasks />} />
         <Route path="employees" element={<Employees />} />
+        <Route path="announcements" element={<Announcements />} />
         <Route path="profile" element={<Profile />} />
       </Route>
       
