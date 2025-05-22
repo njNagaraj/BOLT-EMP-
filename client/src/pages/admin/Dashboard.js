@@ -4,6 +4,8 @@ import { motion } from 'framer-motion';
 import { Chart as ChartJS, ArcElement, Tooltip, Legend, CategoryScale, LinearScale, BarElement, Title } from 'chart.js';
 import { Doughnut, Bar } from 'react-chartjs-2';
 import { format } from 'date-fns';
+import { Dialog, Transition } from '@headlessui/react';
+import toast from 'react-hot-toast';
 
 ChartJS.register(ArcElement, CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
 
@@ -28,16 +30,20 @@ export default function AdminDashboard() {
   });
   
   const [recentActivity, setRecentActivity] = useState([]);
+  const [isAnnouncementModalOpen, setIsAnnouncementModalOpen] = useState(false);
+  const [newAnnouncement, setNewAnnouncement] = useState({
+    title: '',
+    description: '',
+    startDate: format(new Date(), 'yyyy-MM-dd'),
+    endDate: format(new Date(), 'yyyy-MM-dd')
+  });
   
   useEffect(() => {
     // Fetch dashboard data
     const fetchDashboardData = async () => {
       try {
         // Get all users
-        const usersRes = await axios.get('/api/users', {
-  withCredentials: true
-});
-
+        const usersRes = await axios.get('/api/users');
         const employees = usersRes.data.filter(user => user.role === 'employee').length;
         
         // Get all attendance
@@ -117,6 +123,25 @@ export default function AdminDashboard() {
     
     fetchDashboardData();
   }, []);
+
+  const handleCreateAnnouncement = async (e) => {
+    e.preventDefault();
+    
+    try {
+      await axios.post('/api/announcements', newAnnouncement);
+      setIsAnnouncementModalOpen(false);
+      setNewAnnouncement({
+        title: '',
+        description: '',
+        startDate: format(new Date(), 'yyyy-MM-dd'),
+        endDate: format(new Date(), 'yyyy-MM-dd')
+      });
+      toast.success('Announcement created successfully');
+    } catch (err) {
+      console.error('Error creating announcement:', err);
+      toast.error('Failed to create announcement');
+    }
+  };
   
   const leaveChartData = {
     labels: ['Pending', 'Approved', 'Rejected'],
@@ -160,6 +185,15 @@ export default function AdminDashboard() {
           <h2 className="text-2xl font-bold leading-7 text-gray-900 sm:truncate sm:text-3xl sm:tracking-tight">
             Admin Dashboard
           </h2>
+        </div>
+        <div className="mt-4 flex md:ml-4 md:mt-0">
+          <button
+            type="button"
+            onClick={() => setIsAnnouncementModalOpen(true)}
+            className="btn btn-primary"
+          >
+            Create Announcement
+          </button>
         </div>
       </div>
       
@@ -264,6 +298,137 @@ export default function AdminDashboard() {
           </ul>
         </div>
       </motion.div>
+
+      {/* Create Announcement Modal */}
+      <Transition show={isAnnouncementModalOpen} as={React.Fragment}>
+        <Dialog
+          as="div"
+          className="fixed inset-0 z-10 overflow-y-auto"
+          onClose={() => setIsAnnouncementModalOpen(false)}
+        >
+          <div className="min-h-screen px-4 text-center">
+            <Transition.Child
+              as={React.Fragment}
+              enter="ease-out duration-300"
+              enterFrom="opacity-0"
+              enterTo="opacity-100"
+              leave="ease-in duration-200"
+              leaveFrom="opacity-100"
+              leaveTo="opacity-0"
+            >
+              <Dialog.Overlay className="fixed inset-0 bg-black opacity-30" />
+            </Transition.Child>
+
+            <span
+              className="inline-block h-screen align-middle"
+              aria-hidden="true"
+            >
+              &#8203;
+            </span>
+            
+            <Transition.Child
+              as={React.Fragment}
+              enter="ease-out duration-300"
+              enterFrom="opacity-0 scale-95"
+              enterTo="opacity-100 scale-100"
+              leave="ease-in duration-200"
+              leaveFrom="opacity-100 scale-100"
+              leaveTo="opacity-0 scale-95"
+            >
+              <div className="inline-block w-full max-w-md p-6 my-8 overflow-hidden text-left align-middle transition-all transform bg-white shadow-xl rounded-2xl">
+                <Dialog.Title
+                  as="h3"
+                  className="text-lg font-medium leading-6 text-gray-900"
+                >
+                  Create New Announcement
+                </Dialog.Title>
+                
+                <form onSubmit={handleCreateAnnouncement}>
+                  <div className="mt-4 space-y-4">
+                    <div>
+                      <label htmlFor="title" className="block text-sm font-medium text-gray-700">
+                        Title *
+                      </label>
+                      <input
+                        type="text"
+                        id="title"
+                        name="title"
+                        value={newAnnouncement.title}
+                        onChange={e => setNewAnnouncement({...newAnnouncement, title: e.target.value})}
+                        className="mt-1 input w-full"
+                        required
+                      />
+                    </div>
+                    
+                    <div>
+                      <label htmlFor="description" className="block text-sm font-medium text-gray-700">
+                        Description *
+                      </label>
+                      <textarea
+                        id="description"
+                        name="description"
+                        rows={3}
+                        value={newAnnouncement.description}
+                        onChange={e => setNewAnnouncement({...newAnnouncement, description: e.target.value})}
+                        className="mt-1 input w-full"
+                        required
+                      />
+                    </div>
+                    
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <label htmlFor="startDate" className="block text-sm font-medium text-gray-700">
+                          Start Date *
+                        </label>
+                        <input
+                          type="date"
+                          id="startDate"
+                          name="startDate"
+                          value={newAnnouncement.startDate}
+                          onChange={e => setNewAnnouncement({...newAnnouncement, startDate: e.target.value})}
+                          className="mt-1 input w-full"
+                          required
+                        />
+                      </div>
+                      
+                      <div>
+                        <label htmlFor="endDate" className="block text-sm font-medium text-gray-700">
+                          End Date *
+                        </label>
+                        <input
+                          type="date"
+                          id="endDate"
+                          name="endDate"
+                          value={newAnnouncement.endDate}
+                          onChange={e => setNewAnnouncement({...newAnnouncement, endDate: e.target.value})}
+                          className="mt-1 input w-full"
+                          required
+                        />
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div className="mt-6 flex justify-end space-x-3">
+                    <button
+                      type="button"
+                      onClick={() => setIsAnnouncementModalOpen(false)}
+                      className="btn btn-outline"
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      type="submit"
+                      className="btn btn-primary"
+                    >
+                      Create Announcement
+                    </button>
+                  </div>
+                </form>
+              </div>
+            </Transition.Child>
+          </div>
+        </Dialog>
+      </Transition>
     </div>
   );
 }

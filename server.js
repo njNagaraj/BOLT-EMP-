@@ -8,6 +8,7 @@ const users = require('./mockData/users');
 const tasks = require('./mockData/tasks');
 const attendance = require('./mockData/attendance');
 const leaves = require('./mockData/leaves');
+const announcements = require('./mockData/announcements');
 
 const app = express();
 const JWT_SECRET = 'your-secret-key'; // In production, use environment variable
@@ -41,6 +42,36 @@ const authenticateUser = (req, res, next) => {
     res.status(401).json({ msg: 'Token is not valid' });
   }
 };
+
+// Announcement routes
+app.get('/api/announcements', authenticateUser, (req, res) => {
+  const currentDate = new Date().toISOString().split('T')[0];
+  const activeAnnouncements = announcements.filter(announcement => {
+    return announcement.startDate <= currentDate && announcement.endDate >= currentDate;
+  });
+  res.json(activeAnnouncements);
+});
+
+app.post('/api/announcements', authenticateUser, (req, res) => {
+  if (req.user.role !== 'admin') {
+    return res.status(403).json({ msg: 'Not authorized to create announcements' });
+  }
+
+  const { title, description, startDate, endDate } = req.body;
+  
+  const newAnnouncement = {
+    id: (announcements.length + 1).toString(),
+    title,
+    description,
+    startDate,
+    endDate,
+    createdAt: new Date().toISOString(),
+    createdBy: req.user.id
+  };
+
+  announcements.push(newAnnouncement);
+  res.status(201).json(newAnnouncement);
+});
 
 app.post('/api/auth/login', (req, res) => {
   const { email, password } = req.body;

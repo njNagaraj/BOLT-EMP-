@@ -1,7 +1,8 @@
-import React, { useState, Fragment } from 'react';
+import React, { useState, Fragment, useEffect } from 'react';
 import { Outlet, NavLink, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { Dialog, Menu, Transition } from '@headlessui/react';
+import axios from 'axios';
 import {
   Bars3Icon,
   XMarkIcon,
@@ -19,11 +20,28 @@ function classNames(...classes) {
 
 export default function Layout() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [announcements, setAnnouncements] = useState([]);
   const { currentUser, logout } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
   
   const isAdmin = currentUser.role === 'admin';
+
+  useEffect(() => {
+    const fetchAnnouncements = async () => {
+      try {
+        const res = await axios.get('/api/announcements');
+        setAnnouncements(res.data);
+      } catch (err) {
+        console.error('Error fetching announcements:', err);
+      }
+    };
+
+    fetchAnnouncements();
+    // Refresh announcements every minute
+    const interval = setInterval(fetchAnnouncements, 60000);
+    return () => clearInterval(interval);
+  }, []);
   
   // Define navigation items based on user role
   const navigation = isAdmin 
@@ -48,6 +66,34 @@ export default function Layout() {
 
   return (
     <div className="min-h-screen bg-gray-50">
+      {/* Announcements Banner */}
+      {announcements.length > 0 && (
+        <div className="bg-primary-500">
+          <div className="max-w-7xl mx-auto py-3 px-3 sm:px-6 lg:px-8">
+            <div className="flex flex-col space-y-2">
+              {announcements.map((announcement, index) => (
+                <div 
+                  key={announcement.id}
+                  className={classNames(
+                    "flex items-center justify-between",
+                    index !== announcements.length - 1 ? "border-b border-primary-400 pb-2" : ""
+                  )}
+                >
+                  <div className="flex-1 flex items-center">
+                    <p className="ml-3 font-medium text-white truncate">
+                      <span className="md:hidden">{announcement.title}</span>
+                      <span className="hidden md:inline">
+                        {announcement.title} - {announcement.description}
+                      </span>
+                    </p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Mobile sidebar */}
       <Transition.Root show={sidebarOpen} as={Fragment}>
         <Dialog as="div" className="relative z-50 lg:hidden" onClose={setSidebarOpen}>
