@@ -23,13 +23,13 @@ const users = [
   },
   {
     id: "3",
-    name: "Jane Smith",
-    email: "jane@company.com",
-    password: "jane123",
-    role: "employee",
-    department: "Design",
-    position: "UI/UX Designer",
-    joinDate: "2021-06-22",
+    name: "Sarah Wilson",
+    email: "sarah@company.com",
+    password: "sarah123",
+    role: "hr",
+    department: "Human Resources",
+    position: "HR Manager",
+    joinDate: "2021-02-15",
     avatar: "https://randomuser.me/api/portraits/women/3.jpg"
   },
   {
