@@ -6,6 +6,7 @@ import { useAuth } from './contexts/AuthContext';
 import Login from './pages/Login';
 import AdminDashboard from './pages/admin/Dashboard';
 import EmployeeDashboard from './pages/employee/Dashboard';
+import HRLeaves from './pages/hr/Leaves';
 import Layout from './components/Layout';
 import Attendance from './pages/admin/Attendance';
 import Leaves from './pages/admin/Leaves';
@@ -59,6 +60,20 @@ function App() {
         <Route path="profile" element={<Profile />} />
       </Route>
       
+      {/* HR Routes */}
+      <Route 
+        path="/hr" 
+        element={
+          <ProtectedRoute 
+            element={<Layout />} 
+            allowedRoles={['hr']} 
+          />
+        }
+      >
+        <Route path="leaves" element={<HRLeaves />} />
+        <Route path="profile" element={<Profile />} />
+      </Route>
+      
       {/* Employee Routes */}
       <Route 
         path="/employee" 
@@ -83,6 +98,8 @@ function App() {
           isAuthenticated ? (
             currentUser.role === 'admin' ? (
               <Navigate to="/admin" replace />
+            ) : currentUser.role === 'hr' ? (
+              <Navigate to="/hr/leaves" replace />
             ) : (
               <Navigate to="/employee" replace />
             )
